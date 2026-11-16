@@ -2854,100 +2854,41 @@ var e="script#wp-emoji-settings",t=document.querySelector(e);if(!(t instanceof H
             const p = audio.play();
             if (p !== undefined) {
                 p.then(() => {
-                    console.log("Audio autoplayed successfully!");
                     updateIcons();
-                }).catch(err => {
-                    console.warn("Direct autoplay blocked by browser policy, listening for first user touch/interaction:", err);
-                    const unlock = () => {
-                        audio.play().then(() => {
-                            updateIcons();
-                            ['click', 'touchstart', 'touchend', 'scroll', 'pointerdown', 'keydown'].forEach(evt => {
-                                window.removeEventListener(evt, unlock, { capture: true });
-                            });
-                        }).catch(() => {});
-                    };
-                    ['click', 'touchstart', 'touchend', 'scroll', 'pointerdown', 'keydown'].forEach(evt => {
-                        window.addEventListener(evt, unlock, { capture: true, once: true });
-                    });
+                    cleanupListeners();
+                }).catch(() => {
+                    // Browser policy blocked zero-click autoplay, waiting for first touch anywhere
                 });
             }
         };
 
-        tryPlay();
-        window.addEventListener('load', tryPlay);
-    }
+        const events = ['click', 'touchstart', 'touchend', 'pointerdown', 'mousedown', 'scroll', 'keydown'];
+        const unlockOnFirstTouch = () => {
+            audio.play().then(() => {
+                updateIcons();
+                cleanupListeners();
+            }).catch(() => {});
+        };
 
-    function initCommentForm() {
-        const form = document.getElementById('commentform-81430');
-        if (!form) return;
+        const cleanupListeners = () => {
+            events.forEach(evt => {
+                window.removeEventListener(evt, unlockOnFirstTouch, { capture: true });
+                document.removeEventListener(evt, unlockOnFirstTouch, { capture: true });
+            });
+        };
 
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            const authorInput = document.getElementById('author');
-            const commentInput = document.getElementById('cui-textarea-81430');
-            const confirmInput = document.getElementById('konfirmasi');
-            const statusDiv = document.getElementById('cui-comment-status-81430');
-            const submitBtn = document.getElementById('submit-81430');
-
-            const name = authorInput ? authorInput.value.trim() : '';
-            const comment = commentInput ? commentInput.value.trim() : '';
-            const statusVal = confirmInput ? confirmInput.value : '';
-
-            if (!name) {
-                alert('Silakan masukkan nama Anda.');
-                if (authorInput) authorInput.focus();
-                return;
-            }
-            if (!comment) {
-                alert('Silakan tulis ucapan doa restu Anda.');
-                if (commentInput) commentInput.focus();
-                return;
-            }
-
-            const now = new Date();
-            const timeFormatted = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) + ', ' + 
-                                 now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
-
-            const newWish = {
-                name: name,
-                time: timeFormatted,
-                status: (statusVal === 'Tidak hadir' ? 'Tidak hadir' : 'Hadir'),
-                comment: comment
-            };
-
-            // 1. Tampilkan langsung di layar seketika
-            const currentList = getLocalWishes();
-            currentList.unshift(newWish);
-            saveLocalWishes(currentList);
-            renderWishesList(currentList);
-
-            if (commentInput) commentInput.value = '';
-            if (statusDiv) {
-                statusDiv.innerHTML = '<div style="padding:10px 15px; margin:10px 0; background:#e8f5e9; color:#2e7d32; border-radius:6px; text-align:center; font-weight:600; font-size:0.9rem;">✓ Terima kasih atas ucapan dan doa restunya!</div>';
-                setTimeout(() => { statusDiv.innerHTML = ''; }, 6000);
-            }
-
-            // 2. Kirim ke Google Sheets
-            if (GOOGLE_SCRIPT_URL) {
-                if (submitBtn) {
-                    submitBtn.disabled = true;
-                    submitBtn.value = 'Mengirim...';
-                }
-                fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(newWish)
-                }).finally(() => {
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.value = 'Kirim';
-                    }
-                });
-            }
+        // Pasang listener di SELURUH LAYAR (window dan document)
+        events.forEach(evt => {
+            window.addEventListener(evt, unlockOnFirstTouch, { capture: true });
+            document.addEventListener(evt, unlockOnFirstTouch, { capture: true });
         });
+
+        // 1. Coba langsung detik ini juga
+        tryPlay();
+
+        // 2. Coba lagi saat DOM dan Window loaded
+        document.addEventListener('DOMContentLoaded', tryPlay);
+        window.addEventListener('load', tryPlay);
     }
 
     // Run on DOM ready
@@ -2962,6 +2903,7 @@ var e="script#wp-emoji-settings",t=document.querySelector(e);if(!(t instanceof H
         initGuestName();
         fetchWishesFromCloud();
         initCommentForm();
+        initImmediateAudioAutoplay();
     }
 })();
 </script>
