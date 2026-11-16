@@ -335,6 +335,89 @@ ul[id^="cui-container-comment"] {
 }
 </style>
 
+
+<style id="event-card-readability">
+/* ========================================================
+   OPTIMASI KETERBACAAN TEKS AKAD NIKAH & RESEPSI
+   ======================================================== */
+
+/* 1. Berikan lapisan overlay putih lembut agar ilustrasi latar tidak bertabrakan dengan tulisan */
+.elementor-81430 .elementor-element.elementor-element-2f432a3a::before,
+.elementor-81430 .elementor-element.elementor-element-1b376b60::before,
+.elementor-element-2f432a3a::before,
+.elementor-element-1b376b60::before {
+    background-image: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.95) 0%,
+        rgba(255, 255, 255, 0.90) 40%,
+        rgba(255, 255, 255, 0.82) 70%,
+        rgba(255, 255, 255, 0.35) 88%,
+        rgba(255, 255, 255, 0.0) 100%
+    ) !important;
+    opacity: 0.95 !important;
+}
+
+/* 2. Judul 'Akad Nikah' & 'Resepsi' */
+.elementor-element-436a5c4 .elementor-heading-title,
+.elementor-element-7a63a17 .elementor-heading-title {
+    color: #4a2810 !important;
+    font-size: 38px !important;
+    font-weight: 600 !important;
+    text-shadow: 0 2px 4px rgba(255, 255, 255, 0.9) !important;
+}
+
+/* 3. Tanggal (Sabtu, 21 November 2026) */
+.elementor-element-79341035 .elementor-heading-title,
+.elementor-element-45d0135e .elementor-heading-title {
+    color: #1a0f07 !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.4px !important;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9) !important;
+}
+
+/* 4. Jam Acara (Pukul ...) */
+.elementor-element-9e1252a .elementor-heading-title,
+.elementor-element-22bcc38c .elementor-heading-title {
+    color: #1a0f07 !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.4px !important;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9) !important;
+}
+
+/* 5. Kotak Lokasi & Alamat (Bertempat di, Pendopo Andaru, Jalan Lawu...) */
+.elementor-element-ea0a56d .elementor-widget-container,
+.elementor-element-6c6cd7e7 .elementor-widget-container {
+    background: rgba(255, 255, 255, 0.75) !important;
+    border: 1px solid rgba(107, 67, 41, 0.2) !important;
+    border-radius: 14px !important;
+    padding: 12px 16px !important;
+    margin: 8px 12px !important;
+    box-shadow: 0 3px 12px rgba(107, 67, 41, 0.08) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+}
+
+.elementor-element-ea0a56d .elementor-heading-title,
+.elementor-element-6c6cd7e7 .elementor-heading-title {
+    color: #2b180d !important;
+    font-size: 13.5px !important;
+    line-height: 1.6 !important;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9) !important;
+}
+
+.elementor-element-ea0a56d .elementor-heading-title b,
+.elementor-element-6c6cd7e7 .elementor-heading-title b {
+    color: #4a2810 !important;
+    font-size: 17px !important;
+    font-weight: 800 !important;
+    display: inline-block !important;
+    margin: 3px 0 !important;
+    letter-spacing: 0.3px !important;
+}
+</style>
+
 </head>
 <body class="wp-singular post-template post-template-elementor_canvas single single-post postid-81430 single-format-standard wp-embed-responsive wp-theme-hello-elementor hello-elementor-default elementor-default elementor-template-canvas elementor-kit-11 elementor-page elementor-page-81430">
 			<div data-elementor-type="wp-post" data-elementor-id="81430" class="elementor elementor-81430" data-elementor-post-type="post">
