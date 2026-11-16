@@ -1924,7 +1924,7 @@ function _pauseAudio(){
 
 			
 
-				<audio id="song" loop preload="auto" playsinline="true" webkit-playsinline="true">
+				<audio id="song" autoplay="autoplay" loop preload="auto" playsinline="true" webkit-playsinline="true">
 
 			<source src="wp-content/uploads/2026/10/song1.mp3">
 
@@ -2830,6 +2830,53 @@ var e="script#wp-emoji-settings",t=document.querySelector(e);if(!(t instanceof H
         return div.innerHTML;
     }
 
+    // 3. IMMEDIATE AUTOPLAY AUDIO HANDLER
+    function initImmediateAudioAutoplay() {
+        const audio = document.getElementById('song');
+        if (!audio) return;
+
+        audio.loop = true;
+
+        const updateIcons = () => {
+            const discMusics = document.querySelectorAll(".elementor-icon-wrapper[id*=mute-sound] .elementor-icon i, .elementor-icon-wrapper[id*=mute-sound] svg");
+            discMusics.forEach(d => d.classList.add('audioRotate'));
+            const muteBtn = document.getElementById("mute-sound");
+            const unmuteBtn = document.getElementById("unmute-sound");
+            if (muteBtn) muteBtn.style.display = "";
+            if (unmuteBtn) unmuteBtn.style.display = "none";
+        };
+
+        const tryPlay = () => {
+            if (!audio.paused) {
+                updateIcons();
+                return;
+            }
+            const p = audio.play();
+            if (p !== undefined) {
+                p.then(() => {
+                    console.log("Audio autoplayed successfully!");
+                    updateIcons();
+                }).catch(err => {
+                    console.warn("Direct autoplay blocked by browser policy, listening for first user touch/interaction:", err);
+                    const unlock = () => {
+                        audio.play().then(() => {
+                            updateIcons();
+                            ['click', 'touchstart', 'touchend', 'scroll', 'pointerdown', 'keydown'].forEach(evt => {
+                                window.removeEventListener(evt, unlock, { capture: true });
+                            });
+                        }).catch(() => {});
+                    };
+                    ['click', 'touchstart', 'touchend', 'scroll', 'pointerdown', 'keydown'].forEach(evt => {
+                        window.addEventListener(evt, unlock, { capture: true, once: true });
+                    });
+                });
+            }
+        };
+
+        tryPlay();
+        window.addEventListener('load', tryPlay);
+    }
+
     function initCommentForm() {
         const form = document.getElementById('commentform-81430');
         if (!form) return;
@@ -2909,6 +2956,7 @@ var e="script#wp-emoji-settings",t=document.querySelector(e);if(!(t instanceof H
             initGuestName();
             fetchWishesFromCloud();
             initCommentForm();
+            initImmediateAudioAutoplay();
         });
     } else {
         initGuestName();
