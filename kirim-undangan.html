@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kirim Undangan Lia & Rizki</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f7fb;
+  padding: 20px;
+  color: #333;
+}
+.container {
+  max-width: 500px;
+  margin: auto;
+}
+h2 { text-align: center; }
+.card {
+  background: white;
+  padding: 16px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+}
+button {
+  width: 100%;
+  padding: 13px;
+  background: #16834a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+<h2>Undangan Lia & Rizki</h2>
+<p>Pilih nama penerima, lalu tekan tombol kirim.</p>
+<div id="list"></div>
+</div>
+
+<script>
+const names = [
+"Ce Selvi",
+"Pak Pudji",
+"Mbak Santi Malang",
+"Mas Pur",
+"Pak Kenci",
+"Mbak Endang SWD",
+"Keluarga S.Poniman",
+"Keluarga Mbah Kaboel",
+"Pakpoh Heru dan Bude Danik",
+"Pakpoh Minto dan Bupoh Tiwit",
+"Om Yoyon dan Tante Ninok",
+"Adam",
+"Jemblung",
+"Shiwa"
+];
+
+const list = document.getElementById("list");
+
+names.forEach((name, index) => {
+  const link = encodeURIComponent(name).replace(/%20/g, "+");
+
+  const message = `Assalamu'alaikum Wr. Wb.
+Bismillahirrahmanirrahim.
+
+Yth. Bapak/Ibu/Saudara/i
+*${name}*
+
+Tanpa mengurangi rasa hormat, perkenankan kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri acara Pernikahan kami:
+
+*Lia & Rizki*
+
+Berikut link undangan kami untuk info lengkap dari acara bisa kunjungi:
+https://blackidtt.github.io/lia-rizki/?to=${link}
+
+Merupakan suatu kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan untuk hadir dan memberikan doa restu.
+
+Terima kasih banyak atas perhatiannya.
+
+Wassalamu'alaikum Wr. Wb.
+
+Kami yang berbahagia
+*Lia & Rizki*`;
+
+  const card = document.createElement("div");
+  card.className = "card";
+
+  const title = document.createElement("h3");
+  title.textContent = (index + 1) + ". " + name;
+
+  const button = document.createElement("button");
+  button.textContent = "Kirim via WhatsApp";
+
+  button.onclick = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({ text: message });
+      } catch (e) {}
+    } else {
+      window.open(
+        "https://api.whatsapp.com/send?text=" +
+        encodeURIComponent(message),
+        "_blank"
+      );
+    }
+  };
+
+  card.appendChild(title);
+  card.appendChild(button);
+  list.appendChild(card);
+});
+</script>
+
+</body>
+</html>
