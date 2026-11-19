@@ -1912,7 +1912,7 @@ function _pauseAudio(){
 
 				// FIX TASK-C1 v3.2.1.2: Output boolean langsung ke JS (bukan string '...' yang perlu di-compare)
 
-								window.settingAutoplay = true;
+								window.settingAutoplay = false;
 
 			</script>
 
@@ -1924,9 +1924,9 @@ function _pauseAudio(){
 
 			
 
-				<audio id="song" autoplay="autoplay" preload="auto" playsinline="true" webkit-playsinline="true">
+				<audio id="song" preload="auto" playsinline="true" webkit-playsinline="true">
 
-			<source src="wp-content/uploads/2026/10/song1.mp3">
+			<source src="wp-content/uploads/2026/10/song1.mp3?v=2">
 
 		</audio>
 
@@ -2920,77 +2920,99 @@ var e="script#wp-emoji-settings",t=document.querySelector(e);if(!(t instanceof H
         }
     }
 
-    // 3. IMMEDIATE AUTOPLAY AUDIO HANDLER (PUTAR 1X, TIDAK DI-LOOP)
-    function initImmediateAudioAutoplay() {
+    // 3. UNIFIED WEDDING AUDIO (SEMUA JADI SATU SAAT BUKA UNDANGAN)
+    function initUnifiedWeddingAudio() {
         const audio = document.getElementById('song');
         if (!audio) return;
 
+        // Pastikan tidak loop (putar 1x)
         audio.loop = false;
         audio.removeAttribute('loop');
 
-        const onAudioEnded = () => {
-            const discMusics = document.querySelectorAll(".elementor-icon-wrapper[id*=mute-sound] .elementor-icon i, .elementor-icon-wrapper[id*=mute-sound] svg, .elementor-icon-wrapper[id*=unmute-sound] .elementor-icon i, .elementor-icon-wrapper[id*=unmute-sound] svg");
-            discMusics.forEach(d => d.classList.remove('audioRotate'));
-            const muteBtn = document.getElementById("mute-sound");
-            const unmuteBtn = document.getElementById("unmute-sound");
-            if (muteBtn) muteBtn.style.display = "none";
-            if (unmuteBtn) unmuteBtn.style.display = "";
-            if (typeof ytMusicPlaying !== 'undefined') ytMusicPlaying = false;
-        };
-        audio.addEventListener('ended', onAudioEnded);
-
-        const updateIcons = () => {
-            const discMusics = document.querySelectorAll(".elementor-icon-wrapper[id*=mute-sound] .elementor-icon i, .elementor-icon-wrapper[id*=mute-sound] svg");
-            discMusics.forEach(d => d.classList.add('audioRotate'));
-            const muteBtn = document.getElementById("mute-sound");
-            const unmuteBtn = document.getElementById("unmute-sound");
-            if (muteBtn) muteBtn.style.display = "";
-            if (unmuteBtn) unmuteBtn.style.display = "none";
-        };
-
-        const tryPlay = () => {
-            if (!audio.paused) {
-                updateIcons();
-                return;
-            }
-            const p = audio.play();
-            if (p !== undefined) {
-                p.then(() => {
-                    updateIcons();
-                    cleanupListeners();
-                }).catch(() => {
-                    // Browser policy blocked zero-click autoplay, waiting for first touch anywhere
-                });
-            }
-        };
-
-        const events = ['click', 'touchstart', 'touchend', 'pointerdown', 'mousedown', 'scroll', 'keydown'];
-        const unlockOnFirstTouch = () => {
-            audio.play().then(() => {
-                updateIcons();
-                cleanupListeners();
-            }).catch(() => {});
-        };
-
-        const cleanupListeners = () => {
-            events.forEach(evt => {
-                window.removeEventListener(evt, unlockOnFirstTouch, { capture: true });
-                document.removeEventListener(evt, unlockOnFirstTouch, { capture: true });
-            });
-        };
-
-        // Pasang listener di SELURUH LAYAR (window dan document)
-        events.forEach(evt => {
-            window.addEventListener(evt, unlockOnFirstTouch, { capture: true });
-            document.addEventListener(evt, unlockOnFirstTouch, { capture: true });
+        // Pastikan video latar belakang selalu hening (muted 100%)
+        const bgVideos = document.querySelectorAll('video');
+        bgVideos.forEach(v => {
+            v.muted = true;
+            v.volume = 0;
         });
 
-        // 1. Coba langsung detik ini juga
-        tryPlay();
+        const updateIcons = (isPlaying) => {
+            const discMusics = document.querySelectorAll(".elementor-icon-wrapper[id*=mute-sound] .elementor-icon i, .elementor-icon-wrapper[id*=mute-sound] svg, .elementor-icon-wrapper[id*=unmute-sound] .elementor-icon i, .elementor-icon-wrapper[id*=unmute-sound] svg");
+            const muteBtn = document.getElementById("mute-sound");
+            const unmuteBtn = document.getElementById("unmute-sound");
+            if (isPlaying) {
+                discMusics.forEach(d => d.classList.add('audioRotate'));
+                if (muteBtn) muteBtn.style.display = "";
+                if (unmuteBtn) unmuteBtn.style.display = "none";
+                if (typeof ytMusicPlaying !== 'undefined') ytMusicPlaying = true;
+            } else {
+                discMusics.forEach(d => d.classList.remove('audioRotate'));
+                if (muteBtn) muteBtn.style.display = "none";
+                if (unmuteBtn) unmuteBtn.style.display = "";
+                if (typeof ytMusicPlaying !== 'undefined') ytMusicPlaying = false;
+            }
+        };
 
-        // 2. Coba lagi saat DOM dan Window loaded
-        document.addEventListener('DOMContentLoaded', tryPlay);
-        window.addEventListener('load', tryPlay);
+        // Event audio native
+        audio.addEventListener('play', () => updateIcons(true));
+        audio.addEventListener('pause', () => updateIcons(false));
+        audio.addEventListener('ended', () => {
+            updateIcons(false);
+            window.userPaused = true;
+        });
+
+        // Handler utama: Satukan semua hanya saat pertama kali klik "Buka Undangan"
+        const tombolBuka = document.getElementById('tombolbuka');
+        if (tombolBuka) {
+            tombolBuka.onclick = function(e) {
+                if (e) e.preventDefault();
+
+                // 1. Putar lagu song1.mp3
+                window.userPaused = false;
+                audio.play().then(() => {
+                    updateIcons(true);
+                }).catch(err => {
+                    console.log("Audio play blocked/error:", err);
+                });
+
+                // 2. Buka sampul undangan
+                if (typeof enableScroll === 'function') enableScroll();
+                if (typeof showAllSect === 'function') showAllSect();
+                const firstCol = document.querySelector('.firstColumn');
+                if (firstCol) firstCol.style.display = 'flex';
+
+                if (window.jQuery && jQuery("#cover").length) {
+                    jQuery("#cover").animate({ opacity: 0, top: "-100%" }, 1200, function() {
+                        jQuery("#cover").hide();
+                    });
+                } else {
+                    const cover = document.getElementById('cover');
+                    if (cover) cover.style.display = 'none';
+                }
+
+                // 3. Pastikan video latar tetap jalan tapi tanpa suara
+                bgVideos.forEach(v => {
+                    v.muted = true;
+                    v.volume = 0;
+                    v.play().catch(() => {});
+                });
+            };
+        }
+
+        // Tombol musik di kanan bawah: murni sebagai kontrol Play / Pause
+        const audioContainer = document.getElementById('audio-container');
+        if (audioContainer) {
+            audioContainer.onclick = function(e) {
+                if (e) e.stopPropagation();
+                if (!audio.paused) {
+                    window.userPaused = true;
+                    audio.pause();
+                } else {
+                    window.userPaused = false;
+                    audio.play().catch(() => {});
+                }
+            };
+        }
     }
 
     // Run on DOM ready
@@ -2999,13 +3021,13 @@ var e="script#wp-emoji-settings",t=document.querySelector(e);if(!(t instanceof H
             initGuestName();
             fetchWishesFromCloud();
             initCommentForm();
-            initImmediateAudioAutoplay();
+            initUnifiedWeddingAudio();
         });
     } else {
         initGuestName();
         fetchWishesFromCloud();
         initCommentForm();
-        initImmediateAudioAutoplay();
+        initUnifiedWeddingAudio();
     }
 })();
 </script>
