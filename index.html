@@ -1904,7 +1904,7 @@ function _pauseAudio(){
 		</div>
 						</div>
 				</div>
-				<div class="elementor-element elementor-element-1faad52a elementor-view-stacked elementor-shape-circle wdp-sticky-section-positon--bottom elementor-widget elementor-widget-weddingpress-audio" data-id="1faad52a" data-element_type="widget" data-e-type="widget" data-settings="{&quot;sticky&quot;:&quot;bottom&quot;,&quot;sticky_offset&quot;:50,&quot;sticky_offset_mobile&quot;:70,&quot;loop&quot;:&quot;yes&quot;,&quot;sticky_on&quot;:[&quot;desktop&quot;,&quot;tablet&quot;,&quot;mobile&quot;],&quot;sticky_effects_offset&quot;:0,&quot;sticky_anchor_link_offset&quot;:0}" data-widget_type="weddingpress-audio.default">
+				<div class="elementor-element elementor-element-1faad52a elementor-view-stacked elementor-shape-circle wdp-sticky-section-positon--bottom elementor-widget elementor-widget-weddingpress-audio" data-id="1faad52a" data-element_type="widget" data-e-type="widget" data-settings="{&quot;sticky&quot;:&quot;bottom&quot;,&quot;sticky_offset&quot;:50,&quot;sticky_offset_mobile&quot;:70,&quot;loop&quot;:&quot;no&quot;,&quot;sticky_on&quot;:[&quot;desktop&quot;,&quot;tablet&quot;,&quot;mobile&quot;],&quot;sticky_effects_offset&quot;:0,&quot;sticky_anchor_link_offset&quot;:0}" data-widget_type="weddingpress-audio.default">
 				<div class="elementor-widget-container">
 								<script>
 
@@ -1924,7 +1924,7 @@ function _pauseAudio(){
 
 			
 
-				<audio id="song" autoplay="autoplay" loop preload="auto" playsinline="true" webkit-playsinline="true">
+				<audio id="song" autoplay="autoplay" preload="auto" playsinline="true" webkit-playsinline="true">
 
 			<source src="wp-content/uploads/2026/10/song1.mp3">
 
@@ -2920,12 +2920,24 @@ var e="script#wp-emoji-settings",t=document.querySelector(e);if(!(t instanceof H
         }
     }
 
-    // 3. IMMEDIATE AUTOPLAY AUDIO HANDLER
+    // 3. IMMEDIATE AUTOPLAY AUDIO HANDLER (PUTAR 1X, TIDAK DI-LOOP)
     function initImmediateAudioAutoplay() {
         const audio = document.getElementById('song');
         if (!audio) return;
 
-        audio.loop = true;
+        audio.loop = false;
+        audio.removeAttribute('loop');
+
+        const onAudioEnded = () => {
+            const discMusics = document.querySelectorAll(".elementor-icon-wrapper[id*=mute-sound] .elementor-icon i, .elementor-icon-wrapper[id*=mute-sound] svg, .elementor-icon-wrapper[id*=unmute-sound] .elementor-icon i, .elementor-icon-wrapper[id*=unmute-sound] svg");
+            discMusics.forEach(d => d.classList.remove('audioRotate'));
+            const muteBtn = document.getElementById("mute-sound");
+            const unmuteBtn = document.getElementById("unmute-sound");
+            if (muteBtn) muteBtn.style.display = "none";
+            if (unmuteBtn) unmuteBtn.style.display = "";
+            if (typeof ytMusicPlaying !== 'undefined') ytMusicPlaying = false;
+        };
+        audio.addEventListener('ended', onAudioEnded);
 
         const updateIcons = () => {
             const discMusics = document.querySelectorAll(".elementor-icon-wrapper[id*=mute-sound] .elementor-icon i, .elementor-icon-wrapper[id*=mute-sound] svg");
